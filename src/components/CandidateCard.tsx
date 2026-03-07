@@ -2,7 +2,7 @@ import { Candidate } from "@/data/candidates";
 import ScoreBar from "./ScoreBar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { User } from "lucide-react";
+import { User, Award } from "lucide-react";
 
 interface CandidateCardProps {
   candidate: Candidate;
@@ -12,20 +12,20 @@ interface CandidateCardProps {
 
 const CandidateCard = ({ candidate, revealFace, revealParty }: CandidateCardProps) => {
   return (
-    <Card className="overflow-hidden border-border bg-card transition-shadow hover:shadow-lg">
+    <Card className="min-w-0 overflow-hidden border-border bg-card transition-shadow hover:shadow-lg">
       {/* Headshot area */}
-      <div className="relative flex h-52 items-center justify-center bg-muted">
+      <div className="relative flex h-44 items-center justify-center bg-muted">
         {revealFace ? (
           <div className="flex h-full w-full items-center justify-center">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary">
-              <span className="font-display text-3xl text-primary-foreground">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary">
+              <span className="font-display text-2xl text-primary-foreground">
                 {candidate.name.split(" ").map(n => n[0]).join("")}
               </span>
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
-            <User size={48} strokeWidth={1.5} />
+            <User size={44} strokeWidth={1.5} />
             <span className="font-body text-sm italic">Identity hidden</span>
           </div>
         )}
@@ -40,12 +40,18 @@ const CandidateCard = ({ candidate, revealFace, revealParty }: CandidateCardProp
             {candidate.party}
           </Badge>
         )}
+        {candidate.sittingMP && (
+          <div className="absolute left-3 top-3 flex items-center gap-1 rounded bg-accent/90 px-2 py-0.5 text-xs font-semibold text-accent-foreground">
+            <Award size={12} />
+            Sitting MP
+          </div>
+        )}
       </div>
 
-      <CardContent className="space-y-4 p-5">
-        {/* Name - always shown */}
+      <CardContent className="space-y-3 p-4">
+        {/* Name */}
         <div>
-          <h3 className="font-display text-xl font-semibold text-foreground">
+          <h3 className="font-display text-lg font-semibold text-foreground">
             {revealFace ? candidate.name : `Candidate ${candidate.id.split("-")[1]}`}
           </h3>
           {revealParty ? (
@@ -53,6 +59,13 @@ const CandidateCard = ({ candidate, revealFace, revealParty }: CandidateCardProp
           ) : (
             <p className="font-body text-sm italic text-muted-foreground">Party hidden</p>
           )}
+        </div>
+
+        {/* Vote share */}
+        <div className="flex items-baseline gap-2">
+          <span className="font-display text-2xl font-bold text-foreground">{candidate.voteShare}%</span>
+          <span className="font-body text-xs text-muted-foreground">vote share</span>
+          <span className="ml-auto font-body text-xs text-muted-foreground">{candidate.votes.toLocaleString()} votes</span>
         </div>
 
         {/* Key Policies */}
@@ -68,18 +81,8 @@ const CandidateCard = ({ candidate, revealFace, revealParty }: CandidateCardProp
           ))}
         </div>
 
-        {/* Manifesto */}
-        <p className="font-body text-sm leading-relaxed text-muted-foreground">
-          {candidate.manifesto}
-        </p>
-
-        {/* Experience */}
-        <p className="font-body text-xs italic text-muted-foreground">
-          {candidate.experience}
-        </p>
-
         {/* Scores */}
-        <div className="space-y-3 border-t border-border pt-4">
+        <div className="space-y-2 border-t border-border pt-3">
           <ScoreBar label="Credibility" score={candidate.credibilityScore} />
           <ScoreBar label="Feasibility" score={candidate.feasibilityScore} />
         </div>
