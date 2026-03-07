@@ -9,10 +9,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Vote, RotateCcw } from "lucide-react";
+import { Vote, RotateCcw, Eye, EyeOff, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type SortOption = "credibility" | "feasibility" | "name";
+type SortOption = "credibility" | "name";
 
 const Index = () => {
   const [constituency, setConstituency] = useState(constituencies[0]);
@@ -26,8 +26,7 @@ const Index = () => {
       .filter((c) => c.constituency === constituency)
       .filter((c) => !hiddenIds.has(c.id));
     return filtered.sort((a, b) => {
-      if (sortBy === "credibility") return b.credibilityScore - a.credibilityScore;
-      if (sortBy === "feasibility") return b.feasibilityScore - a.feasibilityScore;
+      if (sortBy === "credibility") return b.credibility - a.credibility;
       return a.name.localeCompare(b.name);
     });
   }, [constituency, sortBy, hiddenIds]);
@@ -46,16 +45,17 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-primary px-6 py-8">
-        <div className="mx-auto flex max-w-6xl items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent">
-            <Vote className="h-6 w-6 text-accent-foreground" />
+      <header className="relative overflow-hidden bg-primary px-6 py-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(230_65%_60%/0.4),transparent_70%)]" />
+        <div className="relative mx-auto flex max-w-6xl items-center gap-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-foreground/10 backdrop-blur-sm">
+            <Vote className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-display text-3xl font-bold tracking-tight text-primary-foreground">
+            <h1 className="font-display text-2xl text-primary-foreground">
               ClearVote
             </h1>
-            <p className="font-body text-sm text-primary-foreground/60">
+            <p className="font-body text-xs font-light tracking-wide text-primary-foreground/50">
               Vote on policy, not personality
             </p>
           </div>
@@ -63,49 +63,46 @@ const Index = () => {
       </header>
 
       {/* Controls */}
-      <div className="sticky top-0 z-10 border-b border-border bg-card/80 px-6 py-4 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-5">
-          <div className="min-w-[220px]">
-            <Select value={constituency} onValueChange={(v) => { setConstituency(v); setHiddenIds(new Set()); }}>
-              <SelectTrigger className="font-body rounded-xl border-border bg-background">
-                <SelectValue placeholder="Select constituency" />
-              </SelectTrigger>
-              <SelectContent>
-                {constituencies.map((c) => (
-                  <SelectItem key={c} value={c} className="font-body">
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="sticky top-0 z-10 border-b border-border bg-card/95 px-6 py-3 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4">
+          <Select value={constituency} onValueChange={(v) => { setConstituency(v); setHiddenIds(new Set()); }}>
+            <SelectTrigger className="w-[200px] font-body text-sm border-border bg-background">
+              <SelectValue placeholder="Select constituency" />
+            </SelectTrigger>
+            <SelectContent>
+              {constituencies.map((c) => (
+                <SelectItem key={c} value={c} className="font-body text-sm">{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          <div className="flex items-center gap-5">
-            <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-foreground">
+          <div className="flex items-center gap-4">
+            <label className="flex cursor-pointer items-center gap-2 font-body text-xs text-muted-foreground hover:text-foreground transition-colors">
               <Checkbox
                 checked={revealFace}
                 onCheckedChange={(checked) => setRevealFace(checked === true)}
+                className="h-3.5 w-3.5"
               />
-              Reveal Identity
+              Identity
             </label>
-            <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-foreground">
+            <label className="flex cursor-pointer items-center gap-2 font-body text-xs text-muted-foreground hover:text-foreground transition-colors">
               <Checkbox
                 checked={revealParty}
                 onCheckedChange={(checked) => setRevealParty(checked === true)}
+                className="h-3.5 w-3.5"
               />
-              Reveal Party
+              Party
             </label>
           </div>
 
-          <div className="ml-auto min-w-[180px]">
+          <div className="ml-auto">
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-              <SelectTrigger className="font-body rounded-xl border-border bg-background">
+              <SelectTrigger className="w-[160px] font-body text-sm border-border bg-background">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="credibility" className="font-body">Sort by Credibility</SelectItem>
-                <SelectItem value="feasibility" className="font-body">Sort by Feasibility</SelectItem>
-                <SelectItem value="name" className="font-body">Sort by Name</SelectItem>
+                <SelectItem value="credibility" className="font-body text-sm">By Credibility</SelectItem>
+                <SelectItem value="name" className="font-body text-sm">By Name</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -113,16 +110,17 @@ const Index = () => {
       </div>
 
       {/* Main content */}
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-8 flex items-end justify-between">
+      <main className="mx-auto max-w-6xl px-6 py-8">
+        <div className="mb-6 flex items-end justify-between">
           <div>
-            <h2 className="font-display text-2xl font-semibold text-foreground">
+            <h2 className="font-display text-xl text-foreground">
               {constituency}
             </h2>
-            <p className="font-body text-sm text-muted-foreground">
-              {filteredCandidates.length} candidate{filteredCandidates.length !== 1 ? "s" : ""} showing
+            <p className="mt-1 flex items-center gap-1.5 font-body text-xs text-muted-foreground">
+              <Users className="h-3 w-3" />
+              {filteredCandidates.length} candidate{filteredCandidates.length !== 1 ? "s" : ""}
               {hiddenCount > 0 && (
-                <span className="ml-1 text-accent">
+                <span className="text-destructive/70">
                   · {hiddenCount} removed
                 </span>
               )}
@@ -133,16 +131,16 @@ const Index = () => {
               variant="outline"
               size="sm"
               onClick={resetHidden}
-              className="gap-2 rounded-xl font-body"
+              className="gap-1.5 font-body text-xs h-8"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Reset All
+              <RotateCcw className="h-3 w-3" />
+              Reset
             </Button>
           )}
         </div>
 
         {filteredCandidates.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {filteredCandidates.map((candidate) => (
               <CandidateCard
                 key={candidate.id}
@@ -154,22 +152,22 @@ const Index = () => {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-4 py-20">
-            <p className="font-body text-lg text-muted-foreground">
-              All candidates have been removed.
+          <div className="flex flex-col items-center gap-3 py-20">
+            <p className="font-body text-sm text-muted-foreground">
+              All candidates removed
             </p>
-            <Button variant="outline" onClick={resetHidden} className="gap-2 rounded-xl font-body">
-              <RotateCcw className="h-4 w-4" />
-              Bring them all back
+            <Button variant="outline" size="sm" onClick={resetHidden} className="gap-1.5 font-body text-xs">
+              <RotateCcw className="h-3 w-3" />
+              Bring them back
             </Button>
           </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card px-6 py-8">
-        <p className="mx-auto max-w-6xl text-center font-body text-xs text-muted-foreground">
-          ClearVote — Helping you vote on policy, not personality.
+      <footer className="border-t border-border bg-card px-6 py-6">
+        <p className="mx-auto max-w-6xl text-center font-body text-[11px] text-muted-foreground">
+          ClearVote — Vote on policy, not personality
         </p>
       </footer>
     </div>
