@@ -1,41 +1,117 @@
-import { useState, useMemo } from "react";
-import { constituencies, candidates, Candidate } from "@/data/candidates";
+import { useState, useMemo, useEffect } from "react";
+import { useCandidates, useConstituencies, useCandidatePhotos } from "@/hooks/use-mps";
+import type { MP } from "@/types/mp";
 import CandidateCard from "@/components/CandidateCard";
 import CandidateModal from "@/components/CandidateModal";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ConstituencyCombobox } from "@/components/ConstituencyCombobox";
 import { Switch } from "@/components/ui/switch";
-import { Vote, RotateCcw, Users, Eye, EyeOff } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
+import { Vote, Users, Eye, EyeOff, AlertCircle, RefreshCw, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AnimatePresence } from "framer-motion";
-
-type SortOption = "credibility" | "name";
 
 const Index = () => {
-  const [constituency, setConstituency] = useState(constituencies[0]);
+  const { data: candidates, isLoading, error, refetch } = useCandidates();
+  const constituencies = useConstituencies(candidates);
+  const [constituency, setConstituency] = useState("");
   const [revealFace, setRevealFace] = useState(false);
   const [revealParty, setRevealParty] = useState(false);
-  const [sortBy, setSortBy] = useState<SortOption>("credibility");
-  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [hiddenIds, setHiddenIds] = useState<Set<number>>(new Set());
+  const [selectedCandidate, setSelectedCandidate] = useState<MP | null>(null);
 
+  // Set default constituency once data loads
+  useEffect(() => {
+    if (constituencies.length > 0 && !constituency) {
+      setConstituency(constituencies[0]);
+    }
+  }, [constituencies, constituency]);
+
+  // Filter candidates for selected constituency
   const filteredCandidates = useMemo(() => {
-    const filtered = candidates
+    if (!candidates || !constituency) return [];
+    return candidates
       .filter((c) => c.constituency === constituency)
-      .filter((c) => !hiddenIds.has(c.id));
-    return filtered.sort((a, b) => {
-      if (sortBy === "credibility") return b.credibility - a.credibility;
-      return a.name.localeCompare(b.name);
-    });
-  }, [constituency, sortBy, hiddenIds]);
+      .filter((c) => !hiddenIds.has(c.id))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [candidates, constituency, hiddenIds]);
 
-  const totalInConstituency = candidates.filter((c) => c.constituency === constituency).length;
+  // Lazy-load photos for candidates in the current constituency
+  const photoMap = useCandidatePhotos(filteredCandidates);
+
+  // Merge photos into candidates for display
+  const candidatesWithPhotos = useMemo(() => {
+    if (photoMap.size === 0) return filteredCandidates;
+    return filteredCandidates.map((c) => {
+      const photo = photoMap.get(c.personId);
+      if (photo && photo !== c.thumbnailUrl) {
+        return { ...c, thumbnailUrl: photo };
+      }
+      return c;
+    });
+  }, [filteredCandidates, photoMap]);
+
+  const totalInConstituency = candidates
+    ? candidates.filter((c) => c.constituency === constituency).length
+    : 0;
   const hiddenCount = totalInConstituency - filteredCandidates.length;
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 px-6 py-12">
+          <div className="absolute inset-0">
+            <div className="absolute -left-20 -top-20 h-60 w-60 rounded-full bg-primary-foreground/5 blur-3xl" />
+            <div className="absolute -bottom-10 right-10 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
+          </div>
+          <div className="relative mx-auto flex max-w-6xl flex-col items-center text-center">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-foreground/10 shadow-lg backdrop-blur-sm">
+              <Vote className="h-7 w-7 text-primary-foreground" />
+            </div>
+            <h1 className="font-display text-4xl text-primary-foreground">ClearVote</h1>
+            <p className="mt-2 max-w-md font-body text-sm font-light text-primary-foreground/60">
+              Loading 2024 election candidate data...
+            </p>
+          </div>
+        </header>
+        <main className="mx-auto max-w-6xl px-6 py-10">
+          <Skeleton className="mb-8 h-10 w-[280px] rounded-xl" />
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="overflow-hidden border-border/50">
+                <Skeleton className="h-2 w-full" />
+                <div className="flex flex-col items-center p-7">
+                  <Skeleton className="mb-4 h-24 w-24 rounded-full" />
+                  <Skeleton className="h-6 w-32" />
+                  <Skeleton className="mt-2 h-5 w-20" />
+                </div>
+              </Card>
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
+        <AlertCircle className="h-12 w-12 text-destructive" />
+        <h2 className="font-display text-xl text-foreground">Unable to load candidate data</h2>
+        <p className="max-w-md text-center font-body text-sm text-muted-foreground">
+          {error instanceof Error ? error.message : "An unexpected error occurred while fetching data from Democracy Club."}
+        </p>
+        <Button
+          onClick={() => refetch()}
+          className="mt-2 gap-2 rounded-xl font-body text-sm"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -59,18 +135,16 @@ const Index = () => {
       {/* Controls */}
       <div className="sticky top-0 z-10 border-b border-border/60 bg-card/80 px-6 py-3 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-5">
-          <Select value={constituency} onValueChange={(v) => { setConstituency(v); setHiddenIds(new Set()); }}>
-            <SelectTrigger className="w-[200px] rounded-xl font-body text-sm border-border/60 bg-background shadow-sm">
-              <SelectValue placeholder="Select constituency" />
-            </SelectTrigger>
-            <SelectContent>
-              {constituencies.map((c) => (
-                <SelectItem key={c} value={c} className="font-body text-sm">{c}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <ConstituencyCombobox
+            constituencies={constituencies}
+            value={constituency}
+            onValueChange={(v) => {
+              setConstituency(v);
+              setHiddenIds(new Set());
+            }}
+          />
 
-          {/* Toggle controls — much clearer */}
+          {/* Toggle controls */}
           <div className="flex items-center gap-5 rounded-xl bg-muted/60 px-4 py-2">
             <div className="flex items-center gap-2.5">
               {revealFace ? <Eye className="h-4 w-4 text-primary" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
@@ -83,18 +157,6 @@ const Index = () => {
               <label className="font-body text-sm font-medium text-foreground">Party</label>
               <Switch checked={revealParty} onCheckedChange={setRevealParty} />
             </div>
-          </div>
-
-          <div className="ml-auto">
-            <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-              <SelectTrigger className="w-[160px] rounded-xl font-body text-sm border-border/60 bg-background shadow-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="credibility" className="font-body text-sm">By Credibility</SelectItem>
-                <SelectItem value="name" className="font-body text-sm">By Name</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </div>
@@ -127,10 +189,9 @@ const Index = () => {
           )}
         </div>
 
-        {filteredCandidates.length > 0 ? (
+        {candidatesWithPhotos.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            <AnimatePresence mode="popLayout">
-              {filteredCandidates.map((candidate) => (
+              {candidatesWithPhotos.map((candidate) => (
                 <CandidateCard
                   key={candidate.id}
                   candidate={candidate}
@@ -140,19 +201,22 @@ const Index = () => {
                   onClick={() => setSelectedCandidate(candidate)}
                 />
               ))}
-            </AnimatePresence>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-4 rounded-2xl bg-muted/40 py-20">
-            <p className="font-body text-base text-muted-foreground">All candidates removed</p>
-            <Button
-              variant="outline"
-              onClick={() => setHiddenIds(new Set())}
-              className="gap-2 rounded-xl font-body text-sm"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Bring them all back
-            </Button>
+            <p className="font-body text-base text-muted-foreground">
+              {constituency ? "All candidates removed" : "Select a constituency to view candidates"}
+            </p>
+            {hiddenCount > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => setHiddenIds(new Set())}
+                className="gap-2 rounded-xl font-body text-sm"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Bring them all back
+              </Button>
+            )}
           </div>
         )}
       </main>
@@ -169,7 +233,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border/50 bg-card px-6 py-8">
         <p className="mx-auto max-w-6xl text-center font-body text-xs text-muted-foreground">
-          ClearVote — Strip away the spin. Vote on policy.
+          ClearVote — Strip away the spin. Vote on policy. Data from Democracy Club.
         </p>
       </footer>
     </div>
