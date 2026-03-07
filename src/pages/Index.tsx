@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { constituencies, candidates } from "@/data/candidates";
 import CandidateCard from "@/components/CandidateCard";
 import {
@@ -9,30 +9,42 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Vote } from "lucide-react";
+import { Vote, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-type SortOption = "credibility" | "feasibility" | "name";
+type SortOption = "voteShare" | "credibility" | "feasibility" | "name";
 
 const Index = () => {
   const [constituency, setConstituency] = useState(constituencies[0]);
   const [revealFace, setRevealFace] = useState(false);
   const [revealParty, setRevealParty] = useState(false);
-  const [sortBy, setSortBy] = useState<SortOption>("credibility");
+  const [sortBy, setSortBy] = useState<SortOption>("voteShare");
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const filteredCandidates = useMemo(() => {
     const filtered = candidates.filter((c) => c.constituency === constituency);
     return filtered.sort((a, b) => {
+      if (sortBy === "voteShare") return b.voteShare - a.voteShare;
       if (sortBy === "credibility") return b.credibilityScore - a.credibilityScore;
       if (sortBy === "feasibility") return b.feasibilityScore - a.feasibilityScore;
       return a.name.localeCompare(b.name);
     });
   }, [constituency, sortBy]);
 
+  const scroll = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const cardWidth = scrollRef.current.offsetWidth / 3;
+    scrollRef.current.scrollBy({
+      left: direction === "left" ? -cardWidth : cardWidth,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-primary px-6 py-6">
-        <div className="mx-auto flex max-w-6xl items-center gap-3">
+        <div className="mx-auto flex max-w-7xl items-center gap-3">
           <Vote className="h-8 w-8 text-accent" />
           <div>
             <h1 className="font-display text-2xl font-bold text-primary-foreground">
@@ -47,9 +59,9 @@ const Index = () => {
 
       {/* Controls */}
       <div className="border-b border-border bg-card px-6 py-4">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-6">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-6">
           {/* Constituency Dropdown */}
-          <div className="min-w-[260px]">
+          <div className="min-w-[220px]">
             <Select value={constituency} onValueChange={setConstituency}>
               <SelectTrigger className="font-body">
                 <SelectValue placeholder="Select constituency" />
@@ -89,6 +101,7 @@ const Index = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="voteShare" className="font-body">Sort by Vote Share</SelectItem>
                 <SelectItem value="credibility" className="font-body">Sort by Credibility</SelectItem>
                 <SelectItem value="feasibility" className="font-body">Sort by Feasibility</SelectItem>
                 <SelectItem value="name" className="font-body">Sort by Name</SelectItem>
@@ -99,25 +112,45 @@ const Index = () => {
       </div>
 
       {/* Main content */}
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        <div className="mb-6">
-          <h2 className="font-display text-xl font-semibold text-foreground">
-            {constituency}
-          </h2>
-          <p className="font-body text-sm text-muted-foreground">
-            {filteredCandidates.length} candidates standing
-          </p>
+      <main className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mb-6 flex items-end justify-between">
+          <div>
+            <h2 className="font-display text-xl font-semibold text-foreground">
+              {constituency}
+            </h2>
+            <p className="font-body text-sm text-muted-foreground">
+              {filteredCandidates.length} candidates standing
+            </p>
+          </div>
+          {filteredCandidates.length > 3 && (
+            <div className="flex gap-2">
+              <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => scroll("left")}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => scroll("right")}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
 
         {filteredCandidates.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            ref={scrollRef}
+            className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 scrollbar-hide"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
             {filteredCandidates.map((candidate) => (
-              <CandidateCard
+              <div
                 key={candidate.id}
-                candidate={candidate}
-                revealFace={revealFace}
-                revealParty={revealParty}
-              />
+                className="w-[calc((100%-2.5rem)/3)] min-w-[calc((100%-2.5rem)/3)] snap-start"
+              >
+                <CandidateCard
+                  candidate={candidate}
+                  revealFace={revealFace}
+                  revealParty={revealParty}
+                />
+              </div>
             ))}
           </div>
         ) : (
@@ -125,17 +158,14 @@ const Index = () => {
             <p className="font-body text-lg text-muted-foreground">
               No candidates found for this constituency yet.
             </p>
-            <p className="font-body text-sm text-muted-foreground">
-              Data is being added for more constituencies — check back soon.
-            </p>
           </div>
         )}
       </main>
 
       {/* Footer */}
       <footer className="border-t border-border bg-card px-6 py-6">
-        <p className="mx-auto max-w-6xl text-center font-body text-xs text-muted-foreground">
-          ClearVote — Helping you vote on policy, not personality. Scores are based on independent analysis of manifesto commitments, voting records, and expert assessments.
+        <p className="mx-auto max-w-7xl text-center font-body text-xs text-muted-foreground">
+          ClearVote — Helping you vote on policy, not personality. Data sourced from official 2024 UK General Election results.
         </p>
       </footer>
     </div>
