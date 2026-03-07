@@ -65,7 +65,7 @@ const Index = () => {
             <div className="absolute -bottom-10 right-10 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
           </div>
           <div className="relative mx-auto flex max-w-6xl flex-col items-center text-center">
-            <img src="/logo.png" alt="ClearVote" className="mb-2 h-40 w-auto mix-blend-multiply" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="ClearVote" className="mb-2 h-40 w-auto mix-blend-multiply" />
             <p className="max-w-md font-body text-sm font-light text-primary-foreground/60">
               Loading 2024 election candidate data...
             </p>
@@ -119,7 +119,7 @@ const Index = () => {
           <div className="absolute -bottom-10 right-10 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
         </div>
         <div className="relative mx-auto flex max-w-6xl flex-col items-center text-center">
-          <img src="/logo.png" alt="ClearVote" className="mb-2 h-40 w-auto mix-blend-multiply" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="ClearVote" className="mb-2 h-40 w-auto mix-blend-multiply" />
           <p className="max-w-md font-body text-sm font-light text-primary-foreground/60">
             Choose Ideas not Labels
           </p>
