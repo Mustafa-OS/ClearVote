@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useCandidateData } from "@/hooks/useCandidateData";
+import { constituencies, candidates } from "@/data/candidates";
 import CandidateCard from "@/components/CandidateCard";
 import {
   Select,
@@ -9,49 +9,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Vote, Loader2 } from "lucide-react";
+import { Vote } from "lucide-react";
 
-type SortOption = "votes" | "share" | "name";
+type SortOption = "credibility" | "feasibility" | "name";
 
 const Index = () => {
-  const { candidates, constituencies, loading, error } = useCandidateData();
-  const [constituency, setConstituency] = useState<string>("");
+  const [constituency, setConstituency] = useState(constituencies[0]);
   const [revealFace, setRevealFace] = useState(false);
   const [revealParty, setRevealParty] = useState(false);
-  const [sortBy, setSortBy] = useState<SortOption>("votes");
-
-  // Set default constituency once data loads
-  const selectedConstituency = constituency || constituencies[0] || "";
+  const [sortBy, setSortBy] = useState<SortOption>("credibility");
 
   const filteredCandidates = useMemo(() => {
-    if (!selectedConstituency) return [];
-    const filtered = candidates.filter((c) => c.constituency === selectedConstituency);
+    const filtered = candidates.filter((c) => c.constituency === constituency);
     return filtered.sort((a, b) => {
-      if (sortBy === "votes") return b.votes - a.votes;
-      if (sortBy === "share") return b.voteShare - a.voteShare;
+      if (sortBy === "credibility") return b.credibilityScore - a.credibilityScore;
+      if (sortBy === "feasibility") return b.feasibilityScore - a.feasibilityScore;
       return a.name.localeCompare(b.name);
     });
-  }, [selectedConstituency, sortBy, candidates]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-accent" />
-          <p className="font-body text-muted-foreground">Loading candidate data…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <p className="font-body text-destructive">{error}</p>
-      </div>
-    );
-  }
+  }, [constituency, sortBy]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,7 +39,7 @@ const Index = () => {
               ClearVote
             </h1>
             <p className="font-body text-sm text-primary-foreground/70">
-              Unbiased candidate information · {constituencies.length} constituencies · GE 2024
+              Unbiased candidate information for informed voting
             </p>
           </div>
         </div>
@@ -74,12 +49,12 @@ const Index = () => {
       <div className="border-b border-border bg-card px-6 py-4">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-6">
           {/* Constituency Dropdown */}
-          <div className="min-w-[280px]">
-            <Select value={selectedConstituency} onValueChange={setConstituency}>
+          <div className="min-w-[260px]">
+            <Select value={constituency} onValueChange={setConstituency}>
               <SelectTrigger className="font-body">
                 <SelectValue placeholder="Select constituency" />
               </SelectTrigger>
-              <SelectContent className="max-h-[300px]">
+              <SelectContent>
                 {constituencies.map((c) => (
                   <SelectItem key={c} value={c} className="font-body">
                     {c}
@@ -114,8 +89,8 @@ const Index = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="votes" className="font-body">Sort by Votes</SelectItem>
-                <SelectItem value="share" className="font-body">Sort by Vote Share</SelectItem>
+                <SelectItem value="credibility" className="font-body">Sort by Credibility</SelectItem>
+                <SelectItem value="feasibility" className="font-body">Sort by Feasibility</SelectItem>
                 <SelectItem value="name" className="font-body">Sort by Name</SelectItem>
               </SelectContent>
             </Select>
@@ -127,7 +102,7 @@ const Index = () => {
       <main className="mx-auto max-w-6xl px-6 py-8">
         <div className="mb-6">
           <h2 className="font-display text-xl font-semibold text-foreground">
-            {selectedConstituency}
+            {constituency}
           </h2>
           <p className="font-body text-sm text-muted-foreground">
             {filteredCandidates.length} candidates standing
@@ -135,23 +110,23 @@ const Index = () => {
         </div>
 
         {filteredCandidates.length > 0 ? (
-          <ScrollArea className="w-full">
-            <div className="flex gap-6 pb-4">
-              {filteredCandidates.map((candidate) => (
-                <CandidateCard
-                  key={candidate.id}
-                  candidate={candidate}
-                  revealFace={revealFace}
-                  revealParty={revealParty}
-                />
-              ))}
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredCandidates.map((candidate) => (
+              <CandidateCard
+                key={candidate.id}
+                candidate={candidate}
+                revealFace={revealFace}
+                revealParty={revealParty}
+              />
+            ))}
+          </div>
         ) : (
           <div className="py-20 text-center">
             <p className="font-body text-lg text-muted-foreground">
-              No candidates found for this constituency.
+              No candidates found for this constituency yet.
+            </p>
+            <p className="font-body text-sm text-muted-foreground">
+              Data is being added for more constituencies — check back soon.
             </p>
           </div>
         )}
@@ -160,7 +135,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border bg-card px-6 py-6">
         <p className="mx-auto max-w-6xl text-center font-body text-xs text-muted-foreground">
-          ClearVote — Helping you vote on policy, not personality. Data sourced from UK Parliament Research Briefings (GE 2024).
+          ClearVote — Helping you vote on policy, not personality. Scores are based on independent analysis of manifesto commitments, voting records, and expert assessments.
         </p>
       </footer>
     </div>

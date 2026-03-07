@@ -2,115 +2,217 @@ export interface Candidate {
   id: string;
   name: string;
   party: string;
-  partyAbbreviation: string;
   partyColor: string;
   constituency: string;
-  gender: string;
-  sittingMP: boolean;
-  formerMP: boolean;
-  votes: number;
-  voteShare: number;
-  shareChange: number | null;
+  manifesto: string;
+  credibilityScore: number; // 0-100
+  feasibilityScore: number; // 0-100
+  keyPolicies: string[];
+  experience: string;
 }
 
-const PARTY_COLORS: Record<string, string> = {
-  "Labour": "0 72% 51%",
-  "Conservative": "210 100% 35%",
-  "Liberal Democrat": "35 100% 50%",
-  "Green": "142 71% 35%",
-  "Scottish Green Party": "142 71% 35%",
-  "Reform UK": "195 100% 35%",
-  "Scottish National Party": "45 100% 50%",
-  "Plaid Cymru": "120 60% 35%",
-  "Independent": "270 30% 50%",
-  "Workers Party of Britain": "0 60% 40%",
-  "Alba Party": "210 60% 45%",
-  "Social Democratic Party": "200 50% 45%",
-  "Heritage Party": "30 50% 40%",
-  "UK Independence Party": "270 80% 35%",
-  "Trade Unionist and Socialist Coalition": "0 80% 45%",
-  "Scottish Family Party": "200 40% 50%",
-};
+export const constituencies = [
+  "Bethnal Green & Stepney",
+  "Birmingham Ladywood",
+  "Bristol Central",
+  "Cambridge",
+  "Cities of London & Westminster",
+  "Edinburgh East & Musselburgh",
+  "Hackney North & Stoke Newington",
+  "Holborn & St Pancras",
+  "Islington North",
+  "Leeds Central & Headingley",
+  "Liverpool Riverside",
+  "Manchester Central",
+  "Oxford East",
+  "Sheffield Central",
+  "Streatham & Croydon North",
+];
 
-const DEFAULT_PARTY_COLOR = "220 15% 50%";
-
-function getPartyColor(party: string): string {
-  return PARTY_COLORS[party] || DEFAULT_PARTY_COLOR;
-}
-
-function parseCSVLine(line: string): string[] {
-  const result: string[] = [];
-  let current = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === "," && !inQuotes) {
-      result.push(current.trim());
-      current = "";
-    } else {
-      current += char;
-    }
-  }
-  result.push(current.trim());
-  return result;
-}
-
-export function parseCSVData(csvText: string): {
-  candidates: Candidate[];
-  constituencies: string[];
-} {
-  const lines = csvText.split("\n").filter((l) => l.trim());
-  // Skip header
-  const dataLines = lines.slice(1);
-
-  const candidatesMap = new Map<string, Candidate>();
-  const constituencySet = new Set<string>();
-
-  for (const line of dataLines) {
-    const cols = parseCSVLine(line);
-    if (cols.length < 20) continue;
-
-    const constituency = cols[2];
-    const partyName = cols[7];
-    const partyAbbr = cols[8];
-    const firstName = cols[12];
-    const surname = cols[13];
-    const gender = cols[14];
-    const sittingMP = cols[15] === "Yes";
-    const formerMP = cols[16] === "Yes";
-    const votes = parseInt(cols[18]) || 0;
-    const share = parseFloat(cols[19]) || 0;
-    const change = cols[20] ? parseFloat(cols[20]) : null;
-
-    const name = `${firstName} ${surname}`;
-    const id = `${constituency}-${name}`.replace(/\s+/g, "-").toLowerCase();
-
-    constituencySet.add(constituency);
-    candidatesMap.set(id, {
-      id,
-      name,
-      party: partyName,
-      partyAbbreviation: partyAbbr,
-      partyColor: getPartyColor(partyName),
-      constituency,
-      gender,
-      sittingMP,
-      formerMP,
-      votes,
-      voteShare: Math.round(share * 1000) / 10, // Convert to percentage
-      shareChange: change !== null ? Math.round(change * 1000) / 10 : null,
-    });
-  }
-
-  const constituencies = Array.from(constituencySet).sort();
-  const candidates = Array.from(candidatesMap.values());
-
-  return { candidates, constituencies };
-}
-
-// CSV URL
-export const CSV_URL =
-  "https://researchbriefings.files.parliament.uk/documents/CBP-10009/HoC-GE2024-results-by-candidate.csv";
+export const candidates: Candidate[] = [
+  // Bethnal Green & Stepney
+  {
+    id: "bgs-1",
+    name: "Amara Osei",
+    party: "Labour",
+    partyColor: "0 72% 51%",
+    constituency: "Bethnal Green & Stepney",
+    manifesto: "Focused on affordable housing, NHS investment, and tackling child poverty in Tower Hamlets. Plans to build 2,000 social homes and expand free school meals.",
+    credibilityScore: 78,
+    feasibilityScore: 65,
+    keyPolicies: ["Affordable housing", "NHS funding", "Free school meals"],
+    experience: "Former council leader with 12 years in local government.",
+  },
+  {
+    id: "bgs-2",
+    name: "James Whitfield",
+    party: "Conservative",
+    partyColor: "210 100% 35%",
+    constituency: "Bethnal Green & Stepney",
+    manifesto: "Prioritises small business support, reducing crime, and improving local transport links. Proposes tax breaks for East London entrepreneurs.",
+    credibilityScore: 62,
+    feasibilityScore: 58,
+    keyPolicies: ["Small business support", "Crime reduction", "Transport"],
+    experience: "Business owner and community volunteer for 8 years.",
+  },
+  {
+    id: "bgs-3",
+    name: "Fatima Rahman",
+    party: "Green",
+    partyColor: "142 71% 35%",
+    constituency: "Bethnal Green & Stepney",
+    manifesto: "Champions clean air zones, renewable energy investment, and community-owned green spaces. Wants to make Tower Hamlets carbon neutral by 2035.",
+    credibilityScore: 71,
+    feasibilityScore: 45,
+    keyPolicies: ["Clean air", "Renewable energy", "Green spaces"],
+    experience: "Environmental scientist and local activist for 6 years.",
+  },
+  // Bristol Central
+  {
+    id: "bc-1",
+    name: "Eleanor Marsh",
+    party: "Labour",
+    partyColor: "0 72% 51%",
+    constituency: "Bristol Central",
+    manifesto: "Committed to addressing the housing crisis, investing in public transport, and expanding mental health services. Plans for rent controls and a new bus network.",
+    credibilityScore: 74,
+    feasibilityScore: 62,
+    keyPolicies: ["Rent controls", "Public transport", "Mental health"],
+    experience: "NHS mental health professional turned councillor.",
+  },
+  {
+    id: "bc-2",
+    name: "David Chen",
+    party: "Liberal Democrat",
+    partyColor: "35 100% 50%",
+    constituency: "Bristol Central",
+    manifesto: "Focuses on electoral reform, education funding, and environmental sustainability. Advocates for proportional representation and tripling green energy.",
+    credibilityScore: 69,
+    feasibilityScore: 55,
+    keyPolicies: ["Electoral reform", "Education", "Green energy"],
+    experience: "University lecturer and former charity director.",
+  },
+  {
+    id: "bc-3",
+    name: "Sophie Greenwood",
+    party: "Green",
+    partyColor: "142 71% 35%",
+    constituency: "Bristol Central",
+    manifesto: "Radical climate action with a Green New Deal for Bristol. Universal basic income pilot, free public transport, and community energy cooperatives.",
+    credibilityScore: 66,
+    feasibilityScore: 38,
+    keyPolicies: ["Green New Deal", "UBI pilot", "Free transport"],
+    experience: "Climate campaigner and social enterprise founder.",
+  },
+  // Manchester Central
+  {
+    id: "mc-1",
+    name: "Keiran Murphy",
+    party: "Labour",
+    partyColor: "0 72% 51%",
+    constituency: "Manchester Central",
+    manifesto: "Workers' rights, levelling up Northern infrastructure, and expanding social care. Wants to bring rail into public ownership and create 5,000 apprenticeships.",
+    credibilityScore: 82,
+    feasibilityScore: 70,
+    keyPolicies: ["Workers' rights", "Rail nationalisation", "Apprenticeships"],
+    experience: "Trade union organiser for 15 years, city councillor.",
+  },
+  {
+    id: "mc-2",
+    name: "Priya Sharma",
+    party: "Conservative",
+    partyColor: "210 100% 35%",
+    constituency: "Manchester Central",
+    manifesto: "Economic growth through deregulation, supporting the tech sector, and reducing council tax. Plans to make Manchester a global fintech hub.",
+    credibilityScore: 55,
+    feasibilityScore: 60,
+    keyPolicies: ["Deregulation", "Tech sector", "Tax reduction"],
+    experience: "Fintech entrepreneur and former Treasury advisor.",
+  },
+  {
+    id: "mc-3",
+    name: "Tom Bradley",
+    party: "Reform UK",
+    partyColor: "195 100% 35%",
+    constituency: "Manchester Central",
+    manifesto: "Immigration controls, cutting government waste, and supporting British manufacturing. Wants to reduce net migration and invest in Northern industry.",
+    credibilityScore: 42,
+    feasibilityScore: 35,
+    keyPolicies: ["Immigration control", "Cut waste", "Manufacturing"],
+    experience: "Former factory manager and local business owner.",
+  },
+  // Islington North
+  {
+    id: "in-1",
+    name: "Rebecca Moore",
+    party: "Labour",
+    partyColor: "0 72% 51%",
+    constituency: "Islington North",
+    manifesto: "Expanding social housing, strengthening the NHS, and investing in youth services. Plans to convert empty offices into affordable homes.",
+    credibilityScore: 73,
+    feasibilityScore: 64,
+    keyPolicies: ["Social housing", "NHS", "Youth services"],
+    experience: "Housing charity CEO and local school governor.",
+  },
+  {
+    id: "in-2",
+    name: "Marcus Webb",
+    party: "Independent",
+    partyColor: "270 30% 50%",
+    constituency: "Islington North",
+    manifesto: "Anti-war foreign policy, community wealth building, and democratic reform. Champions cooperatives and local participatory budgeting.",
+    credibilityScore: 80,
+    feasibilityScore: 48,
+    keyPolicies: ["Peace & diplomacy", "Cooperatives", "Participatory budgeting"],
+    experience: "40 years as constituency MP, internationally recognised campaigner.",
+  },
+  {
+    id: "in-3",
+    name: "Sarah Lin",
+    party: "Green",
+    partyColor: "142 71% 35%",
+    constituency: "Islington North",
+    manifesto: "Insulating every home in the constituency, expanding cycling infrastructure, and creating a local food network from urban farms.",
+    credibilityScore: 68,
+    feasibilityScore: 52,
+    keyPolicies: ["Home insulation", "Cycling infrastructure", "Urban farming"],
+    experience: "Architect specialising in sustainable design.",
+  },
+  // Cambridge
+  {
+    id: "cb-1",
+    name: "Dr. Helen Park",
+    party: "Labour",
+    partyColor: "0 72% 51%",
+    constituency: "Cambridge",
+    manifesto: "Science funding, affordable housing for key workers, and improving town-gown relations. Wants to double R&D spending and cap student rents.",
+    credibilityScore: 76,
+    feasibilityScore: 68,
+    keyPolicies: ["Science funding", "Key worker housing", "R&D investment"],
+    experience: "University researcher and former science policy advisor.",
+  },
+  {
+    id: "cb-2",
+    name: "Oliver Hastings",
+    party: "Liberal Democrat",
+    partyColor: "35 100% 50%",
+    constituency: "Cambridge",
+    manifesto: "Rejoining the EU single market, investing in education, and protecting the green belt. Strong focus on international research collaboration.",
+    credibilityScore: 72,
+    feasibilityScore: 42,
+    keyPolicies: ["EU single market", "Education investment", "Green belt"],
+    experience: "Former MEP and human rights lawyer.",
+  },
+  {
+    id: "cb-3",
+    name: "Nina Frost",
+    party: "Conservative",
+    partyColor: "210 100% 35%",
+    constituency: "Cambridge",
+    manifesto: "Supporting the biotech industry, improving road infrastructure, and cutting red tape for businesses. Tax incentives for Cambridge's science parks.",
+    credibilityScore: 58,
+    feasibilityScore: 63,
+    keyPolicies: ["Biotech support", "Infrastructure", "Business tax cuts"],
+    experience: "Pharmaceutical executive and parish councillor.",
+  },
+];
