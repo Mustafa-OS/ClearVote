@@ -50,70 +50,83 @@ const CandidateCard = ({ candidate, revealFace, revealParty, onHide, onClick }: 
 
         {/* Top gradient strip */}
         <div
-          className="h-1.5 w-full"
+          className="h-2 w-full"
           style={{ background: `linear-gradient(90deg, hsl(${candidate.partyColor}), hsl(${candidate.partyColor} / 0.3))` }}
         />
 
-        <div className="p-5">
-          {/* Header */}
-          <div className="flex items-start gap-4">
+        <div className="p-7">
+          {/* Header with large avatar */}
+          <div className="flex flex-col items-center text-center">
             {revealFace ? (
               <div
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl shadow-sm"
-                style={{ background: `linear-gradient(135deg, hsl(${candidate.partyColor}), hsl(${candidate.partyColor} / 0.7))` }}
+                className="mb-4 flex h-24 w-24 items-center justify-center rounded-full shadow-md"
+                style={{ background: `linear-gradient(135deg, hsl(${candidate.partyColor}), hsl(${candidate.partyColor} / 0.6))` }}
               >
-                <span className="font-display text-xl text-primary-foreground">
+                <span className="font-display text-3xl text-primary-foreground">
                   {candidate.name.split(" ").map(n => n[0]).join("")}
                 </span>
               </div>
             ) : (
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-muted">
-                <User size={22} className="text-muted-foreground" />
+              <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-muted">
+                <User size={36} className="text-muted-foreground" />
               </div>
             )}
 
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="truncate font-body text-base font-semibold text-foreground">
-                  {revealFace ? candidate.name : `Candidate ${candidate.id.split("-")[1]}`}
-                </h3>
-                {candidate.sittingMP && (
-                  <span className="inline-flex items-center gap-0.5 rounded-md bg-accent/10 px-1.5 py-0.5 text-[10px] font-semibold text-accent">
-                    <Award size={10} /> MP
-                  </span>
-                )}
-              </div>
-              {revealParty ? (
-                <Badge
-                  className="mt-1.5 border-0 font-body text-[11px] font-medium"
-                  style={{
-                    backgroundColor: `hsl(${candidate.partyColor} / 0.1)`,
-                    color: `hsl(${candidate.partyColor})`,
-                  }}
-                >
-                  {candidate.party}
-                </Badge>
-              ) : (
-                <p className="mt-1.5 font-body text-xs italic text-muted-foreground">Party hidden</p>
+            <div className="flex items-center gap-2">
+              <h3 className="font-display text-xl font-semibold text-foreground">
+                {revealFace ? candidate.name : `Candidate ${candidate.id.split("-")[1]}`}
+              </h3>
+              {candidate.sittingMP && (
+                <span className="inline-flex items-center gap-0.5 rounded-md bg-accent/10 px-1.5 py-0.5 text-[10px] font-semibold text-accent">
+                  <Award size={10} /> MP
+                </span>
               )}
             </div>
 
-            {/* Credibility badge */}
-            <div className={`flex flex-col items-center rounded-xl border px-3 py-2 ${getCredBg(candidate.credibility)}`}>
-              <span className={`font-body text-xl font-bold ${getCredColor(candidate.credibility)}`}>
+            {revealParty ? (
+              <Badge
+                className="mt-2 border-0 font-body text-xs font-medium"
+                style={{
+                  backgroundColor: `hsl(${candidate.partyColor} / 0.1)`,
+                  color: `hsl(${candidate.partyColor})`,
+                }}
+              >
+                {candidate.party}
+              </Badge>
+            ) : (
+              <p className="mt-2 font-body text-xs italic text-muted-foreground">Party hidden</p>
+            )}
+          </div>
+
+          {/* Credibility badge */}
+          <div className={`mt-6 flex items-center justify-between rounded-xl border px-4 py-3 ${getCredBg(candidate.credibility)}`}>
+            <span className="font-body text-xs font-medium uppercase tracking-wider text-muted-foreground">Credibility</span>
+            <div className="flex items-baseline gap-0.5">
+              <span className={`font-display text-2xl font-bold ${getCredColor(candidate.credibility)}`}>
                 {candidate.credibility}
               </span>
-              <span className="font-body text-[9px] font-medium uppercase tracking-wider text-muted-foreground">/10</span>
+              <span className="font-body text-xs text-muted-foreground">/10</span>
             </div>
           </div>
 
           {/* Manifesto preview */}
-          <p className="mt-4 line-clamp-3 font-body text-sm leading-relaxed text-muted-foreground">
-            {candidate.manifesto}
-          </p>
+          <div className="mt-5">
+            <h4 className="mb-1.5 font-body text-[11px] font-semibold uppercase tracking-wider text-primary">Manifesto</h4>
+            <p className="line-clamp-4 font-body text-sm leading-relaxed text-muted-foreground">
+              {candidate.manifesto}
+            </p>
+          </div>
+
+          {/* Feasibility preview */}
+          <div className="mt-4">
+            <h4 className="mb-1.5 font-body text-[11px] font-semibold uppercase tracking-wider text-accent">Feasibility</h4>
+            <p className="line-clamp-3 font-body text-sm leading-relaxed text-muted-foreground">
+              {candidate.feasibility}
+            </p>
+          </div>
 
           {/* Click hint */}
-          <p className="mt-3 font-body text-[11px] font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+          <p className="mt-5 text-center font-body text-[11px] font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
             Click to read more →
           </p>
         </div>
