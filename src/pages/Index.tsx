@@ -7,7 +7,7 @@ import { ConstituencyCombobox } from "@/components/ConstituencyCombobox";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
-import { Vote, Users, Eye, EyeOff, AlertCircle, RefreshCw, RotateCcw } from "lucide-react";
+import { Users, Eye, EyeOff, AlertCircle, RefreshCw, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
@@ -59,17 +59,14 @@ const Index = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 px-6 py-12">
+        <header className="relative overflow-hidden bg-gradient-to-br from-[#4a6fa5] via-[#6b8fc4] to-[#89a8d4] px-6 py-12">
           <div className="absolute inset-0">
             <div className="absolute -left-20 -top-20 h-60 w-60 rounded-full bg-primary-foreground/5 blur-3xl" />
             <div className="absolute -bottom-10 right-10 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
           </div>
           <div className="relative mx-auto flex max-w-6xl flex-col items-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-foreground/10 shadow-lg backdrop-blur-sm">
-              <Vote className="h-7 w-7 text-primary-foreground" />
-            </div>
-            <h1 className="font-display text-4xl text-primary-foreground">ClearVote</h1>
-            <p className="mt-2 max-w-md font-body text-sm font-light text-primary-foreground/60">
+            <img src="/logo.png" alt="ClearVote" className="mb-2 h-40 w-auto mix-blend-multiply" />
+            <p className="max-w-md font-body text-sm font-light text-primary-foreground/60">
               Loading 2024 election candidate data...
             </p>
           </div>
@@ -116,18 +113,15 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 px-6 py-12">
+      <header className="relative overflow-hidden bg-gradient-to-br from-[#4a6fa5] via-[#6b8fc4] to-[#89a8d4] px-6 py-12">
         <div className="absolute inset-0">
           <div className="absolute -left-20 -top-20 h-60 w-60 rounded-full bg-primary-foreground/5 blur-3xl" />
           <div className="absolute -bottom-10 right-10 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
         </div>
         <div className="relative mx-auto flex max-w-6xl flex-col items-center text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-foreground/10 shadow-lg backdrop-blur-sm">
-            <Vote className="h-7 w-7 text-primary-foreground" />
-          </div>
-          <h1 className="font-display text-4xl text-primary-foreground">ClearVote</h1>
-          <p className="mt-2 max-w-md font-body text-sm font-light text-primary-foreground/60">
-            Strip away the spin. Compare candidates on what actually matters — their policies, credibility, and feasibility.
+          <img src="/logo.png" alt="ClearVote" className="mb-2 h-40 w-auto mix-blend-multiply" />
+          <p className="max-w-md font-body text-sm font-light text-primary-foreground/60">
+            Choose Ideas not Labels
           </p>
         </div>
       </header>
@@ -233,7 +227,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border/50 bg-card px-6 py-8">
         <p className="mx-auto max-w-6xl text-center font-body text-xs text-muted-foreground">
-          ClearVote — Strip away the spin. Vote on policy. Data from Democracy Club.
+          ClearVote — Choose Ideas not Labels. Data from Democracy Club.
         </p>
       </footer>
     </div>

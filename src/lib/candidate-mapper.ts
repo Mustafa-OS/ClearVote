@@ -1,6 +1,7 @@
 import type { DCBallot, DCCandidacy } from "@/types/democracy-club";
 import type { MP } from "@/types/mp";
 import { getPartyColor } from "@/lib/party-colors";
+import { getPartyManifesto } from "@/lib/party-manifestos";
 
 let idCounter = 0;
 
@@ -30,6 +31,7 @@ function mapCandidacyToMP(candidacy: DCCandidacy, constituency: string): MP {
     thumbnailUrl: "", // populated lazily from person endpoint
     voteCount: candidacy.result?.num_ballots,
     elected: candidacy.elected,
+    manifesto: getPartyManifesto(candidacy.party_name),
   };
 }
 

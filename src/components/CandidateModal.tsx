@@ -88,17 +88,21 @@ const CandidateModal = ({ candidate, open, onOpenChange, revealFace, revealParty
             </div>
           )}
 
-          {/* Manifesto — only if data exists (future) */}
-          {candidate.manifesto && (
-            <div>
-              <h4 className="mb-2 font-body text-xs font-semibold uppercase tracking-wider text-primary">
-                Manifesto
-              </h4>
-              <p className="font-body text-sm leading-relaxed text-foreground/80">
+          {/* Manifesto / Key Pledges */}
+          <div>
+            <h4 className="mb-2 font-body text-xs font-semibold uppercase tracking-wider text-primary">
+              Key Pledges
+            </h4>
+            {candidate.manifesto ? (
+              <p className="whitespace-pre-line font-body text-sm leading-relaxed text-foreground/80">
                 {candidate.manifesto}
               </p>
-            </div>
-          )}
+            ) : (
+              <p className="font-body text-sm italic text-muted-foreground/60">
+                No credible manifesto source was found
+              </p>
+            )}
+          </div>
 
           {/* Feasibility — only if data exists (future) */}
           {candidate.feasibility && (

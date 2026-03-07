@@ -35,10 +35,14 @@ const CandidateCard = ({ candidate, revealFace, revealParty, onHide, onClick }: 
           <X className="h-3.5 w-3.5" />
         </Button>
 
-        {/* Top gradient strip — party color */}
+        {/* Top gradient strip — only show party color when both toggles are on */}
         <div
           className="h-2 w-full"
-          style={{ background: `linear-gradient(90deg, ${candidate.partyColor}, ${candidate.partyColor}4D)` }}
+          style={{
+            background: revealFace && revealParty
+              ? `linear-gradient(90deg, ${candidate.partyColor}, ${candidate.partyColor}4D)`
+              : "linear-gradient(90deg, #94a3b8, #94a3b84D)",
+          }}
         />
 
         <div className="p-7">
@@ -55,7 +59,10 @@ const CandidateCard = ({ candidate, revealFace, revealParty, onHide, onClick }: 
                 )}
                 <AvatarFallback
                   className="text-3xl font-display"
-                  style={{ backgroundColor: candidate.partyColor, color: candidate.partyForegroundColor }}
+                  style={{
+                    backgroundColor: revealParty ? candidate.partyColor : "#94a3b8",
+                    color: revealParty ? candidate.partyForegroundColor : "#ffffff",
+                  }}
                 >
                   {candidate.name.split(" ").map(n => n[0]).join("")}
                 </AvatarFallback>
@@ -100,15 +107,19 @@ const CandidateCard = ({ candidate, revealFace, revealParty, onHide, onClick }: 
             </div>
           )}
 
-          {/* Manifesto preview — only shown if data exists (future) */}
-          {candidate.manifesto && (
-            <div className="mt-5">
-              <h4 className="mb-1.5 font-body text-[11px] font-semibold uppercase tracking-wider text-primary">Manifesto</h4>
-              <p className="line-clamp-4 font-body text-sm leading-relaxed text-muted-foreground">
+          {/* Manifesto preview */}
+          <div className="mt-5">
+            <h4 className="mb-1.5 font-body text-[11px] font-semibold uppercase tracking-wider text-primary">Key Pledges</h4>
+            {candidate.manifesto ? (
+              <p className="line-clamp-5 whitespace-pre-line font-body text-xs leading-relaxed text-muted-foreground">
                 {candidate.manifesto}
               </p>
-            </div>
-          )}
+            ) : (
+              <p className="font-body text-xs italic text-muted-foreground/60">
+                No credible manifesto source was found
+              </p>
+            )}
+          </div>
 
           {/* Click hint */}
           <p className="mt-5 text-center font-body text-[11px] font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
