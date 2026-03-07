@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://mustafa-os.github.io/CLearVote/#/
+**URL**: https://mustafa-os.github.io/ClearVote/#/
 
 ## What technologies are used for this project?
 
