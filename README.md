@@ -1,26 +1,28 @@
-# ClearVote
+# 🗳️ ClearVote
 
-**Compare UK General Election candidates on their pledges — with names, faces and party labels hidden until you choose to reveal them.**
+**A blind taste test for UK politics: compare your local election candidates on what they promise, with their names, faces and parties hidden until you choose to reveal them.**
 
-**[Live demo →](https://mustafa-os.github.io/ClearVote/#/)**
+**[▶ Try the live demo](https://mustafa-os.github.io/ClearVote/#/)** · React · TypeScript · Vite · Tailwind · TanStack Query · Built at the Claude AI hackathon
 
 ![ClearVote in blind mode: anonymised candidate cards showing only key pledges](docs/img/blind-mode.png)
 
-## What it does
+## At a glance
 
-ClearVote is a blind tasting for UK politics. Pick any of the 650 constituencies from the July 2024 General Election and read what each candidate actually stood for, with the usual shortcuts stripped away:
+- 🗺️ **All 650 constituencies** from the July 2024 UK General Election, using live data from the Democracy Club API.
+- 🙈 **Judge the ideas, not the brand.** Candidates appear as "Candidate 2003" with identical cards: no names, photos, party colours or logos.
+- 🔄 **Reveal when ready.** Flip the Identity and Party toggles to see who you actually agreed with.
+- ⚡ **Fast with no backend.** Everything runs in the browser; the full candidate list is cached, so switching constituencies is instant after the first load.
 
-- **Identity hidden** — candidates appear as "Candidate 2003" with a neutral avatar
-- **Party hidden** — no party names, colours or branding; every card looks identical
-- **Judge the pledges first**, then flip the Identity and Party toggles to see who you agreed with
-- **Remove candidates** you have ruled out, and reset to bring them all back
-- **Open any card** for a detail view with the full pledge list and a link to the candidate's [WhoCanIVoteFor](https://whocanivotefor.co.uk) profile
+## How it works
 
-Flip both toggles and the same cards reveal photos, names and colour-coded party badges:
+1. **Pick a constituency** and read each candidate's key pledges, taken from their party's 2024 manifesto.
+2. **Rule candidates out** as you go, or open any card for the full pledge list and a link to their [WhoCanIVoteFor](https://whocanivotefor.co.uk) profile.
+3. **Flip the toggles** to reveal photos, names and colour-coded party badges:
 
 ![The same constituency with identity and party revealed: photos, names and party badges appear](docs/img/revealed-mode.png)
 
-## How it works
+<details>
+<summary><b>Technical details</b></summary>
 
 A single-page React app with no backend — everything runs in the browser:
 
@@ -33,7 +35,9 @@ A single-page React app with no backend — everything runs in the browser:
 
 **Stack:** React 18 + TypeScript · Vite · Tailwind CSS + shadcn/ui (Radix primitives) · TanStack Query · React Router · Framer Motion · deployed to GitHub Pages via GitHub Actions
 
-## Getting started
+</details>
+
+## Run it
 
 ```bash
 npm install
@@ -44,10 +48,10 @@ npm test        # Vitest
 
 No API keys required — the Democracy Club API is public.
 
-## Project context
+## About
 
-Built at the Claude AI hackathon, March 2026: prototyped from a Lovable template, then built out with Claude Code and hand-written TypeScript. Candidate data from [Democracy Club](https://democracyclub.org.uk).
+Built at the Claude AI hackathon in March 2026: prototyped from a Lovable template, then built out with Claude Code and hand-written TypeScript. Candidate data from [Democracy Club](https://democracyclub.org.uk).
 
 ---
 
-Built by Mustafa Suleman — MEng Design Engineering, Imperial College London · [LinkedIn](https://www.linkedin.com/in/mustafaosuleman/)
+<sub>Built by <b>Mustafa Suleman</b>, MEng Design Engineering, Imperial College London · <a href="https://github.com/Mustafa-OS">More projects</a> · <a href="https://www.linkedin.com/in/mustafaosuleman/">LinkedIn</a></sub>
